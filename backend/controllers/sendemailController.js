@@ -7,34 +7,53 @@ import fs from "fs/promises"; // File system promises version
 import nodemailer from "nodemailer";
 
 export const sendEmail = asyncHandler(async (req, res) => {
-  const id = req.user.id;
-  const data = req.body;
-  const user = await User.findById(id);
-  const emails = await Subemails.findById(id);
+  const id = req.user.id; // req.user mein sirf id hai
+  const { from, to, bcc, subject, text, html } = req.body;
+  console.log(req.body);
 
+  // Ek baar DB call kiya, poora user object mil gaya
+  const user = await User.findById(id);
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  // 1. ISI 'user' object se account calculate kar lo (No extra DB call)
+  const account = user.emailAccounts.find((acc) => acc.email === from);
+
+  if (!account) {
+    return res.status(404).json({ message: "Sender account not linked!" });
+  }
+
+  // 2. Setup Transporter
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "shivamagrawal0455@gmail.com",
-      pass: GOOGLE_APP_PASSWORD,
+      user: account.email,
+      pass: account.googleAppPassword,
     },
   });
 
+  // 3. Mail Options (Sahi logic: Individual to 'to', Group to 'bcc')
   const mailOptions = {
-    from: `"${companyName}" <${gmailID}>`,
-    to: "learncoding0455@gmail.com",
-    subject: "Hello",
-    text: "This is a test email",
-    html: "<b>This is a test email</b>",
+    from: `"${user.fullName}" <${from}>`,
+    to: to || undefined,
+    bcc: bcc || undefined,
+    subject: subject,
+    text: text,
+    html: html || text,
   };
 
-  transporter.sendMail(mailOptions, (err, info) => {
-    if (err) {
-      console.error("Error sending email:", err);
-    } else {
-      console.log("Email sent:", info.response);
-    }
-  });
+  console.log(mailOptions);
+
+  // 4. Send with Async/Await
+  try {
+    await transporter.sendMail(mailOptions);
+    return res.status(200).json({ success: true, message: "Email sent!" });
+  } catch (err) {
+    console.error("Nodemailer Error:", err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 export const showsubEmails = asyncHandler(async (req, res) => {

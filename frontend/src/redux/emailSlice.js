@@ -5,6 +5,34 @@ import Subemails from "../../../backend/models/subEmails";
 
 const API_URL = "http://localhost:4000/api/email";
 
+export const sendEmail = createAsyncThunk(
+  "email/sendEmail",
+  async (formData, { rejectWithValue, getState }) => {
+    try {
+      const token = getState().auth.token;
+
+      if (!token) {
+        return rejectWithValue("No token found");
+      }
+
+      // 3. Axios Request with Headers
+      const response = await axios.post(`${API_URL}/sendEmail`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
+
+      console.log(response.data);
+      return response.data.data;
+    } catch (error) {
+      console.error("Error fetching emails:", error);
+      const message = error.response?.data?.message || "Failed to fetch emails";
+      return rejectWithValue(message);
+    }
+  }
+);
+
 // --- THUNK: Get Sub Emails (Manual Token Method) ---
 export const getSubEmails = createAsyncThunk(
   "email/getSubEmails",

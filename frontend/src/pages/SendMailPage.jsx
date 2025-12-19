@@ -5,120 +5,101 @@ import {
   HiOutlineEnvelope,
   HiOutlineDocumentText,
   HiOutlineCodeBracket,
-  HiUserGroup, // Icon for Group
-  HiUser, // Icon for Individual
+  HiUserGroup,
+  HiUser,
 } from "react-icons/hi2";
+import { useDispatch, useSelector } from "react-redux";
+import { sendEmail } from "../redux/emailSlice";
 
 export default function SendMailPage() {
-  // --- MOCK DATA: Sending Accounts ---
-  const savedSendingEmails = [
-    "marketing@wisdora.com",
-    "admin@wisdora.com",
-    "support@wisdora.com",
-  ];
-
-  // --- MOCK DATA: Groups (DB se aayenge usually) ---
-  const savedGroups = [
-    {
-      id: "g1",
-      name: "Marketing Team",
-      emails: ["mark1@test.com", "mark2@test.com"],
-    },
-    {
-      id: "g2",
-      name: "Developers",
-      emails: ["dev1@test.com", "dev2@test.com", "dev3@test.com"],
-    },
-    {
-      id: "g3",
-      name: "Newsletter Subscribers",
-      emails: ["sub1@test.com", "sub2@test.com"],
-    },
-  ];
+  // Logic from Code 2: Getting state
+  const { user } = useSelector((state) => state.auth);
+  const { subEmails } = useSelector((state) => state.email);
 
   const [form, setForm] = useState({
     from: "",
     to: "",
-    bcc: [], // BCC array hoga groups ke liye
+    bcc: [],
     subject: "",
     text: "",
     html: "",
   });
 
+  const {} = useSelector((state) => state.email);
+
+  const dispatch = useDispatch();
+
+  const handleSendEmail = (e) => {
+    e.preventDefault();
+    dispatch(sendEmail(form));
+  };
+
   const [isLoading, setIsLoading] = useState(false);
   const [editorMode, setEditorMode] = useState("text");
+  const [recipientType, setRecipientType] = useState("individual");
+  const [selectedGroupId, setSelectedGroupId] = useState("");
 
-  // New State: Track kar raha hai ki user Single bhej raha hai ya Group ko
-  const [recipientType, setRecipientType] = useState("individual"); // 'individual' | 'group'
-  const [selectedGroupId, setSelectedGroupId] = useState(""); // UI ke liye group ID hold karega
-
-  // --- AUTO-SELECT FROM EMAIL ---
+  // Logic from Code 2: Set default sender when user is available
   useEffect(() => {
-    if (savedSendingEmails.length > 0) {
-      setForm((prev) => ({ ...prev, from: savedSendingEmails[0] }));
+    if (user?.emailAccounts?.length > 0 && !form.from) {
+      setForm((prev) => ({ ...prev, from: user.emailAccounts[0].email }));
     }
-  }, []);
+  }, [user]);
 
-  // Handle Text Changes
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Handle Group Selection
+  // Logic from Code 2: Handle Group Selection
   const handleGroupChange = (e) => {
     const groupId = e.target.value;
     setSelectedGroupId(groupId);
 
-    // Group ID se emails dhundo
-    const group = savedGroups.find((g) => g.id === groupId);
+    if (!groupId) {
+      setForm((prev) => ({ ...prev, bcc: [] }));
+      return;
+    }
+
+    const group = subEmails.find((g) => g._id === groupId);
     if (group) {
-      // Form state mein emails set kar do
-      setForm((prev) => ({ ...prev, bcc: group.emails, to: "" }));
+      setForm((prev) => ({
+        ...prev,
+        bcc: group.emails, // Array of email strings
+        to: "", // Clear individual recipient
+      }));
+      toast.success(
+        `${group.emails.length} emails added from ${group.groupName}`
+      );
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // 1. Validation Logic
-    if (!form.from) {
-      toast.error("Please select a sender email.");
-      return;
-    }
-
-    if (recipientType === "individual" && !form.to) {
-      toast.error("Please enter a recipient email.");
-      return;
-    }
-
-    if (recipientType === "group" && (!form.bcc || form.bcc.length === 0)) {
-      toast.error("Please select a valid group.");
-      return;
-    }
+    // Logic from Code 2: Validation & Payload
+    if (!form.from) return toast.error("Please select a sender email.");
+    if (recipientType === "individual" && !form.to)
+      return toast.error("Please enter a recipient email.");
+    if (recipientType === "group" && (!form.bcc || form.bcc.length === 0))
+      return toast.error("Please select a valid group.");
 
     setIsLoading(true);
 
-    // 2. Prepare Payload (Backend ko sirf relevant field bhejo)
     const payload = {
       from: form.from,
       subject: form.subject,
       text: form.text,
       html: form.html,
-      // Conditional Logic:
-      to: recipientType === "individual" ? form.to : undefined, // Agar group hai to 'to' undefined
-      bcc: recipientType === "group" ? form.bcc : undefined, // Agar individual hai to 'bcc' undefined
+      to: recipientType === "individual" ? form.to : undefined,
+      bcc: recipientType === "group" ? form.bcc : undefined,
     };
 
-    console.log("FINAL PAYLOAD TO BACKEND:", payload);
+    console.log("FINAL PAYLOAD:", payload);
 
     // Simulate API Call
     setTimeout(() => {
       setIsLoading(false);
-      toast.success(
-        recipientType === "group"
-          ? `Sent to group (${form.bcc.length} emails)!`
-          : "Email sent successfully!"
-      );
+      toast.success("Email process started!");
 
       // Reset logic
       setForm((prev) => ({
@@ -133,6 +114,7 @@ export default function SendMailPage() {
     }, 1500);
   };
 
+  // UI Design from Code 1
   return (
     <div className="min-h-screen w-full bg-background p-4 md:p-8 flex justify-center items-start">
       <Toaster position="top-center" />
@@ -160,10 +142,10 @@ export default function SendMailPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Row 1: From & To */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* FROM - SMART DROPDOWN (No Changes here) */}
+              {/* FROM - Design from Code 1, functionality from Code 2 */}
               <div>
                 <label className="block text-xs font-bold text-text-sub uppercase tracking-wider mb-2 ml-1">
-                  From
+                  From Account
                 </label>
                 <div className="relative">
                   <select
@@ -172,11 +154,15 @@ export default function SendMailPage() {
                     onChange={handleChange}
                     className="w-full bg-gray-50 text-primary font-bold px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all appearance-none cursor-pointer"
                   >
-                    {savedSendingEmails.map((email, index) => (
-                      <option key={index} value={email}>
-                        {email}
-                      </option>
-                    ))}
+                    {user?.emailAccounts?.length > 0 ? (
+                      user.emailAccounts.map((account, index) => (
+                        <option key={index} value={account.email}>
+                          {account.email}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="">No accounts available</option>
+                    )}
                   </select>
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-sub">
                     <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
@@ -186,20 +172,21 @@ export default function SendMailPage() {
                 </div>
               </div>
 
-              {/* DYNAMIC TO / GROUP SECTION */}
+              {/* RECIPIENT - Design from Code 1, functionality from Code 2 */}
               <div>
                 <div className="flex justify-between items-center mb-2 ml-1">
                   <label className="block text-xs font-bold text-text-sub uppercase tracking-wider">
                     Recipient {recipientType === "individual" ? "To" : "BCC"}
                   </label>
 
-                  {/* TOGGLE SWITCH: INDIVIDUAL VS GROUP */}
+                  {/* Toggle Switch */}
                   <div className="flex bg-gray-100 p-0.5 rounded-lg">
                     <button
                       type="button"
                       onClick={() => {
                         setRecipientType("individual");
-                        setForm((prev) => ({ ...prev, bcc: [] })); // Clear Group data
+                        setSelectedGroupId("");
+                        setForm((prev) => ({ ...prev, bcc: [] }));
                       }}
                       className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition-all flex items-center gap-1 ${
                         recipientType === "individual"
@@ -213,7 +200,7 @@ export default function SendMailPage() {
                       type="button"
                       onClick={() => {
                         setRecipientType("group");
-                        setForm((prev) => ({ ...prev, to: "" })); // Clear Individual data
+                        setForm((prev) => ({ ...prev, to: "" }));
                       }}
                       className={`px-2 py-0.5 text-[10px] font-bold rounded-md transition-all flex items-center gap-1 ${
                         recipientType === "group"
@@ -235,9 +222,7 @@ export default function SendMailPage() {
                     )}
                   </div>
 
-                  {/* CONDITIONAL RENDERING */}
                   {recipientType === "individual" ? (
-                    // 1. INDIVIDUAL INPUT
                     <input
                       name="to"
                       type="email"
@@ -247,7 +232,6 @@ export default function SendMailPage() {
                       className="w-full bg-gray-50 text-text-main font-medium pl-11 pr-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all placeholder:text-gray-400"
                     />
                   ) : (
-                    // 2. GROUP SELECT DROPDOWN
                     <div className="relative">
                       <select
                         value={selectedGroupId}
@@ -257,13 +241,13 @@ export default function SendMailPage() {
                         <option value="" disabled>
                           Select a Group
                         </option>
-                        {savedGroups.map((group) => (
-                          <option key={group.id} value={group.id}>
-                            {group.name} ({group.emails.length} emails)
-                          </option>
-                        ))}
+                        {subEmails &&
+                          subEmails.map((group) => (
+                            <option key={group._id} value={group._id}>
+                              {group.groupName} ({group.emails.length})
+                            </option>
+                          ))}
                       </select>
-                      {/* Arrow for Select */}
                       <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-sub">
                         <svg
                           className="w-4 h-4 fill-current"
@@ -278,7 +262,7 @@ export default function SendMailPage() {
               </div>
             </div>
 
-            {/* SUBJECT & BODY (Same as before) */}
+            {/* SUBJECT */}
             <div>
               <label className="block text-xs font-bold text-text-sub uppercase tracking-wider mb-2 ml-1">
                 Subject
@@ -294,6 +278,7 @@ export default function SendMailPage() {
               />
             </div>
 
+            {/* MESSAGE BODY */}
             <div>
               <div className="flex justify-between items-end mb-2 ml-1">
                 <label className="block text-xs font-bold text-text-sub uppercase tracking-wider">
@@ -350,6 +335,7 @@ export default function SendMailPage() {
             <div className="pt-4 border-t border-gray-100 flex justify-end">
               <button
                 type="submit"
+                onClick={handleSendEmail}
                 disabled={isLoading}
                 className="bg-primary hover:bg-primary/90 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-primary/30 transition-all active:scale-95 flex items-center gap-2"
               >
