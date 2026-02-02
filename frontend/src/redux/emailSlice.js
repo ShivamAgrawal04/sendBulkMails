@@ -1,7 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import toast from "react-hot-toast";
-import Subemails from "../../../backend/models/subEmails";
 
 const API_URL = "http://localhost:4000/api/email";
 
