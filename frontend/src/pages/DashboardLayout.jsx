@@ -8,17 +8,24 @@ import {
   HiOutlineCog6Tooth,
   HiBars3,
   HiOutlineArrowLeftOnRectangle,
+  HiOutlineSun,
+  HiOutlineMoon,
 } from "react-icons/hi2";
 import { BiMailSend } from "react-icons/bi";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import { useTheme } from "../context/ThemeContext";
 
 export default function DashboardLayout() {
   const [open, setOpen] = useState(true);
+  const { theme, toggleTheme } = useTheme();
 
   const { user } = useSelector((state) => state.auth);
 
   return (
-    <div className="min-h-screen flex bg-background font-sans text-text-main">
+    <div
+      className="min-h-screen flex font-sans"
+      style={{ backgroundColor: "var(--color-bg)", color: "var(--color-text)" }}
+    >
       {/* --- Sidebar --- */}
       <aside
         className={`${
@@ -86,29 +93,77 @@ export default function DashboardLayout() {
       {/* --- Main Content --- */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Header */}
-        <header className="h-16 bg-white border-b border-border-custom flex items-center justify-between px-6 shadow-sm z-10">
-          {/* Toggle Button */}
+        <header
+          className="h-16 border-b flex items-center justify-between px-6 shadow-sm z-10"
+          style={{
+            backgroundColor: "var(--color-surface)",
+            borderColor: "var(--color-border)",
+          }}
+        >
+          {/* Toggle Sidebar Button */}
           <button
             onClick={() => setOpen(!open)}
-            className="text-text-sub hover:text-primary transition-colors p-2 rounded-lg hover:bg-gray-100"
+            className="p-2 rounded-lg transition-colors"
+            style={{ color: "var(--color-text-sub)" }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "var(--brand-primary)";
+              e.currentTarget.style.backgroundColor = "var(--color-surface-alt)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "var(--color-text-sub)";
+              e.currentTarget.style.backgroundColor = "transparent";
+            }}
           >
             <HiBars3 size={28} />
           </button>
 
-          {/* User Profile */}
+          {/* Right side: theme toggle + user */}
           <div className="flex items-center gap-4">
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="theme-toggle"
+              title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? (
+                <HiOutlineSun size={18} />
+              ) : (
+                <HiOutlineMoon size={18} />
+              )}
+            </button>
+
+            {/* User Info */}
             <div className="text-right hidden sm:block">
-              <span className="block text-sm font-bold text-text-main">
+              <span
+                className="block text-sm font-bold"
+                style={{ color: "var(--color-text)" }}
+              >
                 {user?.fullName || "User"}
               </span>
-              <span className="block text-xs text-text-sub">
+              <span
+                className="block text-xs"
+                style={{ color: "var(--color-text-sub)" }}
+              >
                 {user?.userEmail}
               </span>
             </div>
 
             <Link
               to="/profile"
-              className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary hover:bg-accent hover:text-white transition-all duration-300"
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300"
+              style={{
+                backgroundColor: "rgba(30,58,138,0.1)",
+                color: "var(--brand-primary)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--brand-accent)";
+                e.currentTarget.style.color = "#fff";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "rgba(30,58,138,0.1)";
+                e.currentTarget.style.color = "var(--brand-primary)";
+              }}
             >
               <HiOutlineUserCircle size={28} />
             </Link>
@@ -116,7 +171,10 @@ export default function DashboardLayout() {
         </header>
 
         {/* Page Content (Outlet) */}
-        <main className="flex-1 p-6 overflow-y-auto bg-background/50 scroll-smooth">
+        <main
+          className="flex-1 p-6 overflow-y-auto scroll-smooth"
+          style={{ backgroundColor: "var(--color-bg)" }}
+        >
           <Outlet /> {/* <--- Pages render here */}
         </main>
       </div>
@@ -129,13 +187,12 @@ function NavItem({ to, label, icon, open }) {
   return (
     <NavLink
       to={to}
-      // "end" ensures the Dashboard link isn't active when on /settings
       end={to === "/"}
       className={({ isActive }) =>
         `flex items-center p-3 rounded-xl transition-all duration-300 group whitespace-nowrap ${
           isActive
-            ? "bg-accent text-white shadow-accent/20" // Active State
-            : "text-gray-300 hover:bg-white/10 hover:text-white" // Inactive State
+            ? "bg-accent text-white shadow-accent/20"
+            : "text-gray-300 hover:bg-white/10 hover:text-white"
         } ${!open && "justify-center"}`
       }
     >

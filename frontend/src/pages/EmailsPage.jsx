@@ -14,17 +14,14 @@ import { getSubEmails } from "../redux/emailSlice";
 export default function EmailsPage() {
   const dispatch = useDispatch();
 
-  // Redux Data
   const { subEmails, isLoading } = useSelector((state) => state.email);
 
-  // States
   const [selectedGroup, setSelectedGroup] = useState("");
   const [displayEmails, setDisplayEmails] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Form State
   const [formData, setFormData] = useState({
-    groupName: "general", // Default value as requested
+    groupName: "general",
     email: "",
   });
 
@@ -49,30 +46,37 @@ export default function EmailsPage() {
   const handleDelete = (emailToDelete) => {
     if (window.confirm(`Delete ${emailToDelete}?`)) {
       setDisplayEmails(
-        displayEmails.filter((email) => email !== emailToDelete)
+        displayEmails.filter((email) => email !== emailToDelete),
       );
       toast.success("Email removed from list");
     }
   };
 
-  // Form Submit Handler
   const handleAddEmailSubmit = (e) => {
     e.preventDefault();
-    // Yahan aap apni dispatch ya API call add kar sakte hain
     console.log("Adding Email:", formData);
     toast.success("Email added successfully!");
-    setIsModalOpen(false); // Modal close karein
-    setFormData({ groupName: "general", email: "" }); // Form reset
+    setIsModalOpen(false);
+    setFormData({ groupName: "general", email: "" });
   };
 
   return (
-    <div className="w-full bg-background p-6 min-h-screen relative">
+    <div
+      className="w-full p-6 min-h-screen relative"
+      style={{ backgroundColor: "var(--color-bg)" }}
+    >
       <Toaster position="top-center" />
 
-      {/* --- ADD EMAIL MODAL (POPUP) --- */}
+      {/* --- ADD EMAIL MODAL --- */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-4xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all animate-in fade-in zoom-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div
+            className="w-full max-w-md rounded-4xl shadow-2xl overflow-hidden transform transition-all"
+            style={{
+              backgroundColor: "var(--color-surface)",
+              border: "1px solid var(--color-border)",
+            }}
+          >
             {/* Modal Header */}
             <div className="bg-primary p-6 text-white flex justify-between items-center">
               <div>
@@ -92,7 +96,10 @@ export default function EmailsPage() {
             {/* Modal Body / Form */}
             <form onSubmit={handleAddEmailSubmit} className="p-8 space-y-5">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-700 ml-1">
+                <label
+                  className="text-sm font-bold ml-1"
+                  style={{ color: "var(--color-text)" }}
+                >
                   Group Name
                 </label>
                 <input
@@ -101,20 +108,29 @@ export default function EmailsPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, groupName: e.target.value })
                   }
-                  className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-semibold"
+                  className="w-full p-4 rounded-2xl outline-none transition-all font-semibold border"
+                  style={{
+                    backgroundColor: "var(--color-surface-alt)",
+                    color: "var(--color-text)",
+                    borderColor: "var(--color-border)",
+                  }}
                   placeholder="e.g. general, work"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-700 ml-1">
+                <label
+                  className="text-sm font-bold ml-1"
+                  style={{ color: "var(--color-text)" }}
+                >
                   Email Address
                 </label>
                 <div className="relative">
                   <HiOutlineEnvelope
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                    className="absolute left-4 top-1/2 -translate-y-1/2"
                     size={20}
+                    style={{ color: "var(--color-text-sub)" }}
                   />
                   <input
                     type="email"
@@ -122,7 +138,12 @@ export default function EmailsPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
-                    className="w-full pl-12 p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-semibold"
+                    className="w-full pl-12 p-4 rounded-2xl outline-none transition-all font-semibold border"
+                    style={{
+                      backgroundColor: "var(--color-surface-alt)",
+                      color: "var(--color-text)",
+                      borderColor: "var(--color-border)",
+                    }}
                     placeholder="example@mail.com"
                     required
                   />
@@ -134,7 +155,19 @@ export default function EmailsPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 py-4 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-2xl transition-all active:scale-95"
+                  className="flex-1 py-4 font-bold rounded-2xl transition-all active:scale-95"
+                  style={{
+                    backgroundColor: "var(--color-surface-alt)",
+                    color: "var(--color-text-sub)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor =
+                      "var(--color-border)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor =
+                      "var(--color-surface-alt)";
+                  }}
                 >
                   Cancel
                 </button>
@@ -151,16 +184,28 @@ export default function EmailsPage() {
       )}
 
       {/* --- TABLE SECTION --- */}
-      <div className="w-full bg-white rounded-3xl shadow-xl border border-border-custom overflow-hidden">
+      <div
+        className="w-full rounded-3xl shadow-xl overflow-hidden"
+        style={{
+          backgroundColor: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+        }}
+      >
         <div className="h-2 bg-primary w-full"></div>
 
         {/* Toolbar */}
-        <div className="p-6 border-b border-gray-100 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+        <div
+          className="p-6 border-b flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4"
+          style={{ borderColor: "var(--color-border)" }}
+        >
           <div>
             <h2 className="text-2xl font-extrabold text-primary tracking-tight">
               Email Manager
             </h2>
-            <p className="text-sm text-text-sub font-medium">
+            <p
+              className="text-sm font-medium"
+              style={{ color: "var(--color-text-sub)" }}
+            >
               Group:{" "}
               <span className="text-primary capitalize">{selectedGroup}</span> (
               {displayEmails.length} emails)
@@ -171,7 +216,12 @@ export default function EmailsPage() {
             <select
               value={selectedGroup}
               onChange={handleGroupChange}
-              className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-primary focus:border-primary block p-2.5 font-bold outline-none cursor-pointer"
+              className="text-sm rounded-xl focus:ring-primary focus:border-primary block p-2.5 font-bold outline-none cursor-pointer border"
+              style={{
+                backgroundColor: "var(--color-surface-alt)",
+                color: "var(--color-text)",
+                borderColor: "var(--color-border)",
+              }}
             >
               {subEmails?.map((group) => (
                 <option key={group._id} value={group.groupName}>
@@ -180,7 +230,7 @@ export default function EmailsPage() {
               ))}
             </select>
 
-            <button className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg shadow-emerald-200 transition-all active:scale-95 flex items-center gap-2 text-sm">
+            <button className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg shadow-emerald-200/30 transition-all active:scale-95 flex items-center gap-2 text-sm">
               <HiArrowUpTray size={18} /> Import CSV
             </button>
 
@@ -197,19 +247,33 @@ export default function EmailsPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="p-5 text-xs font-bold text-text-sub uppercase tracking-wider w-16 text-center">
+              <tr
+                style={{
+                  backgroundColor: "var(--color-surface-alt)",
+                  borderBottom: "1px solid var(--color-border)",
+                }}
+              >
+                <th
+                  className="p-5 text-xs font-bold uppercase tracking-wider w-16 text-center"
+                  style={{ color: "var(--color-text-sub)" }}
+                >
                   #
                 </th>
-                <th className="p-5 text-xs font-bold text-text-sub uppercase tracking-wider">
+                <th
+                  className="p-5 text-xs font-bold uppercase tracking-wider"
+                  style={{ color: "var(--color-text-sub)" }}
+                >
                   Email Address
                 </th>
-                <th className="p-5 text-xs font-bold text-text-sub uppercase tracking-wider text-right">
+                <th
+                  className="p-5 text-xs font-bold uppercase tracking-wider text-right"
+                  style={{ color: "var(--color-text-sub)" }}
+                >
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody>
               {isLoading ? (
                 <tr>
                   <td
@@ -223,7 +287,8 @@ export default function EmailsPage() {
                 <tr>
                   <td
                     colSpan="3"
-                    className="p-8 text-center text-gray-400 font-medium"
+                    className="p-8 text-center font-medium"
+                    style={{ color: "var(--color-text-muted)" }}
                   >
                     No emails found in this group.
                   </td>
@@ -232,9 +297,20 @@ export default function EmailsPage() {
                 displayEmails.map((email, index) => (
                   <tr
                     key={index}
-                    className="group hover:bg-blue-50/50 transition-colors duration-200"
+                    className="group transition-colors duration-200"
+                    style={{ borderBottom: "1px solid var(--color-border)" }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor =
+                        "var(--color-surface-alt)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "transparent";
+                    }}
                   >
-                    <td className="p-5 text-center font-bold text-gray-400">
+                    <td
+                      className="p-5 text-center font-bold"
+                      style={{ color: "var(--color-text-muted)" }}
+                    >
                       {index + 1}
                     </td>
                     <td className="p-5">
@@ -242,19 +318,22 @@ export default function EmailsPage() {
                         <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                           <HiOutlineEnvelope />
                         </div>
-                        <span className="font-bold text-text-main text-sm">
+                        <span
+                          className="font-bold text-sm"
+                          style={{ color: "var(--color-text)" }}
+                        >
                           {email}
                         </span>
                       </div>
                     </td>
                     <td className="p-5 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button className="p-2 text-blue-500 hover:bg-blue-100 rounded-lg">
+                        <button className="p-2 text-blue-500 hover:bg-blue-100/20 rounded-lg transition-colors">
                           <HiPencilSquare size={20} />
                         </button>
                         <button
                           onClick={() => handleDelete(email)}
-                          className="p-2 text-red-400 hover:bg-red-100 rounded-lg"
+                          className="p-2 text-red-400 hover:bg-red-100/20 rounded-lg transition-colors"
                         >
                           <HiTrash size={20} />
                         </button>

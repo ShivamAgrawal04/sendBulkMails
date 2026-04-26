@@ -5,26 +5,22 @@ import {
   HiOutlineLockClosed,
   HiOutlineEye,
   HiOutlineEyeSlash,
-  HiOutlineUser, // Imported user icon for Full Name
+  HiOutlineUser,
 } from "react-icons/hi2";
+import { Link } from "react-router-dom";
+import Navbar from "../components/common/Navbar";
 
 export default function RegisterDesign() {
-  // --- States ---
-  // Added fullName and confirmPassword to state
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
-    confirmPassword: "",
   });
 
-  // Separate states for toggling visibility of password vs confirm password
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+  const [agreeTerms, setAgreeTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // --- Handlers ---
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -32,217 +28,239 @@ export default function RegisterDesign() {
   const handleRegister = (e) => {
     e.preventDefault();
 
-    // 1. Basic Validation: Check for empty fields
-    if (
-      !formData.fullName ||
-      !formData.email ||
-      !formData.password ||
-      !formData.confirmPassword
-    ) {
+    if (!formData.fullName || !formData.email || !formData.password) {
       alert("Please fill in all fields");
       return;
     }
 
-    // 2. Critical Validation: Check if passwords match
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
+    if (!agreeTerms) {
+      alert("Please agree to the Terms and Privacy Policy.");
       return;
     }
 
     setIsLoading(true);
 
-    // MOCK REGISTER API
     console.log("Registering user:", formData);
-    // In real app: await axios.post('/api/auth/register', { fullName, email, password })
 
     setTimeout(() => {
       setIsLoading(false);
       alert("Account Created Successfully! Please Login.");
-      // Navigate to login page here
     }, 1500);
   };
 
+  const inputStyle = {
+    backgroundColor: "var(--color-surface-alt)",
+    color: "var(--color-text)",
+    borderColor: "var(--color-border)",
+  };
+
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-background p-4 my-8">
-      <div className="w-full max-w-[500px] bg-white rounded-3xl shadow-2xl border border-border-custom overflow-hidden relative transition-all duration-300">
-        {/* Top Strip */}
-        <div className="absolute top-0 left-0 w-full h-3 bg-primary"></div>
+    <div
+      className="min-h-screen w-full flex flex-col"
+      style={{ backgroundColor: "var(--color-bg)" }}
+    >
+      <Navbar />
+      <div className="flex-1 w-full flex items-center justify-center p-4 py-10">
+        <div
+          className="w-full max-w-[400px] rounded-3xl shadow-2xl overflow-hidden relative transition-all duration-300"
+          style={{
+            backgroundColor: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
+          }}
+        >
+          {/* Top Strip */}
+          <div className="absolute top-0 left-0 w-full h-3 bg-primary"></div>
 
-        <div className="p-8 pt-10">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-extrabold text-primary tracking-tight">
-              Create Account
-            </h1>
-            <p className="text-text-sub text-sm mt-3 font-medium">
-              Join Blue Dimension today.
-            </p>
-          </div>
-
-          {/* Form */}
-          <form onSubmit={handleRegister} className="space-y-5">
-            {/* Full Name Input */}
-            <div>
-              <label className="block text-xs font-bold text-primary uppercase tracking-wider mb-2 ml-1">
-                Full Name
-              </label>
-              <div className="relative group">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-sub group-focus-within:text-accent transition-colors duration-300">
-                  <HiOutlineUser size={22} />
-                </div>
-                <input
-                  type="text"
-                  name="fullName"
-                  value={formData.fullName}
-                  onChange={handleChange}
-                  placeholder="John Doe"
-                  className="w-full bg-background text-text-main font-bold pl-11 pr-4 py-4 rounded-xl border border-border-custom outline-none focus:border-accent focus:ring-4 focus:ring-accent/20 transition-all placeholder:text-text-sub/50"
-                />
-              </div>
+          <div className="p-8 pt-10">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <h1 className="text-4xl font-extrabold text-primary tracking-tight">
+                Create Account
+              </h1>
+              <p className="text-sm mt-3 font-medium" style={{ color: "var(--color-text-sub)" }}>
+                Join Blue Dimension today.
+              </p>
             </div>
 
-            {/* Email Input */}
-            <div>
-              <label className="block text-xs font-bold text-primary uppercase tracking-wider mb-2 ml-1">
-                Email Address
-              </label>
-              <div className="relative group">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-sub group-focus-within:text-accent transition-colors duration-300">
-                  <HiOutlineEnvelope size={22} />
+            {/* Form */}
+            <form onSubmit={handleRegister} className="space-y-4">
+              {/* Full Name Input */}
+              <div>
+                <label className="block text-xs font-bold text-primary uppercase tracking-wider mb-2 ml-1">
+                  Full Name
+                </label>
+                <div className="relative group">
+                  <div
+                    className="absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-300"
+                    style={{ color: "var(--color-text-sub)" }}
+                  >
+                    <HiOutlineUser size={22} />
+                  </div>
+                  <input
+                    type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    placeholder="Your Name"
+                    style={inputStyle}
+                    className="w-full font-bold pl-11 pr-4 py-4 rounded-xl border outline-none focus:border-accent focus:ring-4 focus:ring-accent/20 transition-all"
+                  />
                 </div>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="name@example.com"
-                  className="w-full bg-background text-text-main font-bold pl-11 pr-4 py-4 rounded-xl border border-border-custom outline-none focus:border-accent focus:ring-4 focus:ring-accent/20 transition-all placeholder:text-text-sub/50"
-                />
               </div>
-            </div>
 
-            {/* Password Input */}
-            <div>
-              <label className="block text-xs font-bold text-primary uppercase tracking-wider mb-2 ml-1">
-                Password
-              </label>
-              <div className="relative group">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-sub group-focus-within:text-accent transition-colors duration-300">
-                  <HiOutlineLockClosed size={22} />
+              {/* Email Input */}
+              <div>
+                <label className="block text-xs font-bold text-primary uppercase tracking-wider mb-2 ml-1">
+                  Email Address
+                </label>
+                <div className="relative group">
+                  <div
+                    className="absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-300"
+                    style={{ color: "var(--color-text-sub)" }}
+                  >
+                    <HiOutlineEnvelope size={22} />
+                  </div>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="email@example.com"
+                    style={inputStyle}
+                    className="w-full font-bold pl-11 pr-4 py-4 rounded-xl border outline-none focus:border-accent focus:ring-4 focus:ring-accent/20 transition-all"
+                  />
                 </div>
+              </div>
+
+              {/* Password Input */}
+              <div>
+                <label className="block text-xs font-bold text-primary uppercase tracking-wider mb-2 ml-1">
+                  Password
+                </label>
+                <div className="relative group">
+                  <div
+                    className="absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-300"
+                    style={{ color: "var(--color-text-sub)" }}
+                  >
+                    <HiOutlineLockClosed size={22} />
+                  </div>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="Create password"
+                    style={inputStyle}
+                    className="w-full font-bold pl-11 pr-12 py-4 rounded-xl border outline-none focus:border-accent focus:ring-4 focus:ring-accent/20 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors p-1"
+                    style={{ color: "var(--color-text-sub)" }}
+                  >
+                    {showPassword ? (
+                      <HiOutlineEyeSlash size={20} />
+                    ) : (
+                      <HiOutlineEye size={20} />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Checkbox for Terms */}
+              <div className="flex items-center gap-3">
                 <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="Create password"
-                  className="w-full bg-background text-text-main font-bold pl-11 pr-12 py-4 rounded-xl border border-border-custom outline-none focus:border-accent focus:ring-4 focus:ring-accent/20 transition-all placeholder:text-text-sub/50"
+                  type="checkbox"
+                  id="agreeTerms"
+                  checked={agreeTerms}
+                  onChange={(e) => setAgreeTerms(e.target.checked)}
+                  className="w-4 h-4 text-primary rounded focus:ring-accent focus:ring-2 cursor-pointer transition-all"
+                  style={{
+                    backgroundColor: "var(--color-surface-alt)",
+                    borderColor: "var(--color-border)",
+                  }}
                 />
-                {/* Eye Icon Button for Password */}
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-sub hover:text-primary transition-colors p-1"
+                <label
+                  htmlFor="agreeTerms"
+                  className="text-xs font-medium cursor-pointer"
+                  style={{ color: "var(--color-text-sub)" }}
                 >
-                  {showPassword ? (
-                    <HiOutlineEyeSlash size={20} />
-                  ) : (
-                    <HiOutlineEye size={20} />
-                  )}
-                </button>
+                  I agree to the{" "}
+                  <Link to="/terms" className="text-accent hover:underline font-bold">
+                    Terms
+                  </Link>{" "}
+                  &{" "}
+                  <Link to="/privacy-policy" className="text-accent hover:underline font-bold">
+                    Privacy Policy
+                  </Link>
+                </label>
               </div>
-            </div>
 
-            {/* Confirm Password Input */}
-            <div>
-              <label className="block text-xs font-bold text-primary uppercase tracking-wider mb-2 ml-1">
-                Confirm Password
-              </label>
-              <div className="relative group">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-sub group-focus-within:text-accent transition-colors duration-300">
-                  <HiOutlineLockClosed size={22} />
-                </div>
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  placeholder="Confirm password"
-                  className="w-full bg-background text-text-main font-bold pl-11 pr-12 py-4 rounded-xl border border-border-custom outline-none focus:border-accent focus:ring-4 focus:ring-accent/20 transition-all placeholder:text-text-sub/50"
-                />
-                {/* Eye Icon Button for Confirm Password */}
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-sub hover:text-primary transition-colors p-1"
+              {/* Sign Up Button */}
+              <button
+                type="submit"
+                disabled={isLoading || !agreeTerms}
+                className="w-full bg-primary hover:bg-opacity-90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/30 transition-all duration-200 active:scale-[0.98] tracking-wide flex justify-center items-center mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                ) : (
+                  "Sign Up"
+                )}
+              </button>
+            </form>
+
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t" style={{ borderColor: "var(--color-border)" }}></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span
+                  className="px-4 font-medium"
+                  style={{
+                    backgroundColor: "var(--color-surface)",
+                    color: "var(--color-text-sub)",
+                  }}
                 >
-                  {showConfirmPassword ? (
-                    <HiOutlineEyeSlash size={20} />
-                  ) : (
-                    <HiOutlineEye size={20} />
-                  )}
-                </button>
+                  Or sign up with
+                </span>
               </div>
             </div>
 
-            {/* Sign Up Button */}
+            {/* Google Button */}
             <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-primary hover:bg-opacity-90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/30 transition-all duration-200 active:scale-[0.98] tracking-wide flex justify-center items-center mt-4"
+              type="button"
+              className="w-full font-bold py-3.5 rounded-xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] border-2"
+              style={{
+                backgroundColor: "var(--color-surface)",
+                borderColor: "var(--color-border)",
+                color: "var(--color-text)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "rgba(30,58,138,0.3)";
+                e.currentTarget.style.backgroundColor = "var(--color-surface-alt)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "var(--color-border)";
+                e.currentTarget.style.backgroundColor = "var(--color-surface)";
+              }}
             >
-              {isLoading ? (
-                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-              ) : (
-                "Sign Up"
-              )}
+              <FcGoogle size={24} />
+              <span>Sign up with Google</span>
             </button>
-          </form>
 
-          {/* Divider */}
-          <div className="relative my-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border-custom"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-text-sub font-medium">
-                Or sign up with
-              </span>
+            {/* Login Link */}
+            <div className="mt-6 text-center">
+              <p className="text-sm font-medium" style={{ color: "var(--color-text-sub)" }}>
+                Already have an account?{" "}
+                <Link to="/login" className="text-accent font-bold hover:underline">
+                  Sign In
+                </Link>
+              </p>
             </div>
           </div>
-
-          {/* Google Button */}
-          <button
-            type="button"
-            className="w-full bg-white hover:bg-background border-2 border-border-custom hover:border-primary/30 text-text-main font-bold py-3.5 rounded-xl flex items-center justify-center gap-3 transition-all active:scale-[0.98]"
-          >
-            <FcGoogle size={24} />
-            <span>Sign up with Google</span>
-          </button>
-
-          {/* Login Link */}
-          <div className="mt-8 text-center">
-            <p className="text-sm text-text-sub font-medium">
-              Already have an account?{" "}
-              <a href="#" className="text-accent font-bold hover:underline">
-                Sign In
-              </a>
-            </p>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="bg-background py-4 text-center border-t border-border-custom">
-          <p className="text-xs text-text-sub">
-            By clicking, you agree to our{" "}
-            <a href="#" className="text-accent hover:underline font-bold">
-              Terms
-            </a>{" "}
-            &{" "}
-            <a href="#" className="text-accent hover:underline font-bold">
-              Privacy Policy
-            </a>
-          </p>
         </div>
       </div>
     </div>

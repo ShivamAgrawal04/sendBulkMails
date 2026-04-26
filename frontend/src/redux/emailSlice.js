@@ -1,7 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import toast from "react-hot-toast";
-import Subemails from "../../../backend/models/subEmails";
 
 const API_URL = "http://localhost:4000/api/email";
 
@@ -30,7 +28,7 @@ export const sendEmail = createAsyncThunk(
       const message = error.response?.data?.message || "Failed to fetch emails";
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
 // --- THUNK: Get Sub Emails (Manual Token Method) ---
@@ -62,7 +60,7 @@ export const getSubEmails = createAsyncThunk(
       const message = error.response?.data?.message || "Failed to fetch emails";
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
 export const addSubEmails = createAsyncThunk(
@@ -83,7 +81,7 @@ export const addSubEmails = createAsyncThunk(
             Authorization: `Bearer ${token}`, // 🔥 Token manually yahan lagaya
           },
           withCredentials: true,
-        }
+        },
       );
       console.log(response.data.groups);
       return response.data.data.groups;
@@ -92,7 +90,7 @@ export const addSubEmails = createAsyncThunk(
       const message = error.response?.data?.message || "Failed to fetch emails";
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
 // --- INITIAL STATE ---

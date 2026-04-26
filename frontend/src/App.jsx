@@ -8,6 +8,8 @@ import EmailsPage from "./pages/EmailsPage";
 import SettingsPage from "./pages/SettingsPage";
 import ProfilePage from "./pages/ProfilePage";
 import SendMailPage from "./pages/SendMailPage";
+import TermsPage from "./pages/TermsPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useDispatch, useSelector } from "react-redux";
 import { refreshAccessToken } from "./redux/authSlice";
@@ -29,7 +31,7 @@ const App = () => {
   // Isse AuthLayout galti se redirect nahi karega.
   if (isCheckingAuth) {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-white">
+      <div className="h-screen w-full flex items-center justify-center" style={{ backgroundColor: "var(--color-bg)" }}>
         {/* Yahan apna Spinner/Logo lagao */}
         <h1 className="text-xl font-bold animate-pulse">
           Loading Blue Dimension...
@@ -45,6 +47,8 @@ const App = () => {
       <Route element={<ProtectedRoute authentication={false} />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
       </Route>
 
       <Route element={<ProtectedRoute authentication={true} />}>
