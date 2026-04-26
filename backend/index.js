@@ -17,6 +17,10 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.send("Hello World");
+});
+
 app.use("/api/auth", userRoutes);
 app.use("/api/email", emailRoutes);
 
