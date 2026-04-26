@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "http://localhost:4000/api/email";
+const API_URL = `${import.meta.env.VITE_API_URL}/api/auth`;
 
 export const sendEmail = createAsyncThunk(
   "email/sendEmail",
