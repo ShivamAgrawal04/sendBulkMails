@@ -86,14 +86,14 @@ export const addSingleEmail = asyncHandler(async (req, res) => {
   // 3. Total Emails Limit (Max 1000)
   const totalEmails = userDoc.groups.reduce(
     (acc, g) => acc + g.emails.length,
-    0
+    0,
   );
   if (totalEmails >= 1000)
     throw new ApiError(400, "Total 1000 emails limit reached!");
 
   // 4. Target Group dhoondo
   let targetGroup = userDoc.groups.find(
-    (g) => g.groupName.toLowerCase() === groupName.toLowerCase()
+    (g) => g.groupName.toLowerCase() === groupName.toLowerCase(),
   );
 
   if (!targetGroup) {
@@ -138,23 +138,23 @@ export const addbulkEmails = asyncHandler(async (req, res) => {
     // 2. Global Duplicate & Total Count Check
     const allExistingEmails = new Set(userDoc.groups.flatMap((g) => g.emails));
     const trulyNewEmails = uniqueFileEmails.filter(
-      (e) => !allExistingEmails.has(e)
+      (e) => !allExistingEmails.has(e),
     );
 
     const totalCurrentCount = userDoc.groups.reduce(
       (acc, g) => acc + g.emails.length,
-      0
+      0,
     );
     if (totalCurrentCount + trulyNewEmails.length > 1000) {
       throw new ApiError(
         400,
-        "Adding these would exceed the 1000 total email limit."
+        "Adding these would exceed the 1000 total email limit.",
       );
     }
 
     // 3. Target Group Logic
     let targetGroup = userDoc.groups.find(
-      (g) => g.groupName.toLowerCase() === groupName.toLowerCase()
+      (g) => g.groupName.toLowerCase() === groupName.toLowerCase(),
     );
 
     if (!targetGroup) {
@@ -165,7 +165,7 @@ export const addbulkEmails = asyncHandler(async (req, res) => {
       if (targetGroup.emails.length + trulyNewEmails.length > 500) {
         throw new ApiError(
           400,
-          `Not enough space in group "${groupName}". Max 500 allowed.`
+          `Not enough space in group "${groupName}". Max 500 allowed.`,
         );
       }
       targetGroup.emails.push(...trulyNewEmails);
