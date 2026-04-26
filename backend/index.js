@@ -10,11 +10,9 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
-    // vercel deploy url
-    // Frontend ka EXACT URL (wildcard '*' mat use karna)
-    credentials: true, // YEH SABSE ZAROORI HAI
-  })
+    origin: process.env.Frontend_url,
+    credentials: true,
+  }),
 );
 app.use(cookieParser());
 app.use(express.json());
