@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-const API_URL = "http://localhost:4000/api/auth";
+const API_URL = import.meta.env.URL;
 
 // --- 1. HELPER: Load User Safely from LocalStorage ---
 const loadUserFromStorage = () => {
@@ -16,6 +16,7 @@ const loadUserFromStorage = () => {
     }
     return JSON.parse(userStr);
   } catch (e) {
+    console.error("Error loading user from storage:", e);
     return null;
   }
 };
@@ -34,7 +35,7 @@ export const loginUser = createAsyncThunk(
       const message = error.response?.data?.message || "Login failed";
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
 // --- 3. THUNK: Refresh Access Token ---
@@ -46,7 +47,7 @@ export const refreshAccessToken = createAsyncThunk(
       const response = await axios.post(
         `${API_URL}/refresh`,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       // Debugging ke liye: Check karo user aa raha hai ya nahi
@@ -55,10 +56,10 @@ export const refreshAccessToken = createAsyncThunk(
       // Return structure: { accessToken, user }
       return response.data.data;
     } catch (error) {
-      // Agar cookie expire hai ya invalid hai
+      console.error("Refresh Error:", error);
       return rejectWithValue("Session expired");
     }
-  }
+  },
 );
 
 export const updateUser = createAsyncThunk(
@@ -80,7 +81,7 @@ export const updateUser = createAsyncThunk(
             Authorization: `Bearer ${token}`, // Ab yeh variable defined hai
           },
           withCredentials: true,
-        }
+        },
       );
 
       console.log("Update Response:", response.data.data);
@@ -97,7 +98,7 @@ export const updateUser = createAsyncThunk(
         "Something went wrong";
       return rejectWithValue(errorMessage);
     }
-  }
+  },
 );
 
 // --- 4. INITIAL STATE ---

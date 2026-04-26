@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: import.meta.env.URL,
   withCredentials: true, // for HttpOnly cookie
 });
 
@@ -18,6 +18,8 @@ export const useAuthHandler = () => {
         const res = await api.post("/auth/refresh"); // try to get new access token
         setAccessToken(res.data.accessToken);
       } catch (err) {
+        console.log("Restore error:", err);
+
         // Refresh token missing or invalid → logout
         setAccessToken(null);
         navigate("/login");
@@ -33,7 +35,7 @@ export const useAuthHandler = () => {
         config.headers["Authorization"] = `Bearer ${accessToken}`;
       return config;
     },
-    (error) => Promise.reject(error)
+    (error) => Promise.reject(error),
   );
 
   api.interceptors.response.use(
@@ -50,9 +52,8 @@ export const useAuthHandler = () => {
         try {
           const res = await api.post("/auth/refresh"); // try refresh
           setAccessToken(res.data.accessToken);
-          originalRequest.headers[
-            "Authorization"
-          ] = `Bearer ${res.data.accessToken}`;
+          originalRequest.headers["Authorization"] =
+            `Bearer ${res.data.accessToken}`;
           return api(originalRequest); // retry original request
         } catch {
           setAccessToken(null);
@@ -60,7 +61,7 @@ export const useAuthHandler = () => {
         }
       }
       return Promise.reject(error);
-    }
+    },
   );
 
   const logout = async () => {
